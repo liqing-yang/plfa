@@ -198,13 +198,29 @@ trichotomy (suc m) (suc n) with trichotomy m n
   → m + p < n + q
 +-mono-< m n p q m<n p<q = <-trans (+-monoˡ-< m n p m<n) (+-monoʳ-< n p q p<q)
 
+<-suc : ∀ (n : ℕ)
+      --------
+    → n < suc n
+<-suc zero = z<s
+<-suc (suc n) = s<s (<-suc n)
+  
+≤-trans-< : ∀ {m n p : ℕ}
+    → m ≤ n
+    → n < p
+      -----
+    → m < p
+≤-trans-< z≤n z<s = z<s
+≤-trans-< z≤n (s<s n<p) = z<s
+≤-trans-< (s≤s m≤n) (s<s n<p) = s<s (≤-trans-< m≤n n<p)
+
+
 ≤-iff-< : ∀ (m n : ℕ)
   → suc m ≤ n
     ---------
   → m < n
 
 ≤-iff-< zero (suc n) _ = z<s
-≤-iff-< (suc m) n (s≤s m≤n) = {!!}
+≤-iff-< (suc m) (suc n) (s≤s sm≤n) = s<s (≤-iff-< m n sm≤n)
 
 data even : ℕ → Set
 data odd  : ℕ → Set
@@ -243,11 +259,6 @@ e+e≡e zero en = en
 e+e≡e (suc om) en = suc (o+e≡o om en)
 
 o+e≡o (suc em) en = suc (e+e≡e em en)
-
--- e+e≡e zero     en  =  en
--- e+e≡e (suc om) en  =  suc (o+e≡o om en)
-
--- o+e≡o (suc em) en  =  suc (e+e≡e em en)
 
 o+o≡e : ∀ {m n : ℕ}
   → odd m

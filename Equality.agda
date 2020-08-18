@@ -126,20 +126,38 @@ postulate
     suc n + m
   ∎
 
-data _≤_ : ℕ → ℕ → Set where
+data even : ℕ → Set
+data odd  : ℕ → Set
 
-  z≤n : ∀ {n : ℕ}
-      --------
-      → zero ≤ n
-      
-  s≤s : ∀ {m n : ℕ}
-      → m ≤ n
-      --------
-      → suc m ≤ suc n
+data even where
 
-infix 4 _≤_
+  even-zero : even zero
 
-+-monoˡ-≤ : ∀ (n p q : ℕ)
-  → p ≤ q
-    -----------
-  → n + p ≤ n + q
+  even-suc : ∀ {n : ℕ}
+    → odd n
+      ------------
+    → even (suc n)
+
+data odd where
+  odd-suc : ∀ {n : ℕ}
+    → even n
+      -----------
+    → odd (suc n)
+
+{-# BUILTIN EQUALITY _≡_ #-}
+
+even-comm : ∀ (m n : ℕ)
+  → even (m + n)
+    ------------
+  → even (n + m)
+even-comm m n ev rewrite +-comm n m  = ev
+
++-comm′ : ∀ (m n : ℕ) → m + n ≡ n + m
++-comm′ zero n rewrite +-identity n = refl
++-comm′ (suc m) n rewrite +-suc n m | +-comm′ m n = refl 
+
+even-comm′ : ∀ (m n : ℕ)
+  → even (m + n)
+    ------------
+  → even (n + m)
+even-comm′ m n ev with 
