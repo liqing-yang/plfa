@@ -1,9 +1,15 @@
 module Equality where
 
+import Relation.Binary.PropositionalEquality as Eq
+open Eq using (_≡_; refl)
+open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _≤_)
+
+{-
 data _≡_ {A : Set} (x : A) : A → Set where
   refl : x ≡ x
 
 infix 4 _≡_
+-}
 
 sym : ∀ {A : Set} {x y : A}
   → x ≡ y
@@ -94,13 +100,13 @@ trans′ {A} {x} {y} {z} x≡y y≡z =
     z
   ∎
 
-data ℕ : Set where
-  zero : ℕ
-  suc  : ℕ → ℕ
+-- data ℕ : Set where
+--  zero : ℕ
+--  suc  : ℕ → ℕ
 
-_+_ : ℕ → ℕ → ℕ
-zero    + n  =  n
-(suc m) + n  =  suc (m + n)
+-- _+_ : ℕ → ℕ → ℕ
+-- zero    + n  =  n
+-- (suc m) + n  =  suc (m + n)
 
 postulate
   +-identity : ∀ (m : ℕ) → m + zero ≡ m
@@ -126,6 +132,53 @@ postulate
     suc n + m
   ∎
 
+open _≤_
+
+≤-trans : ∀ {m n p : ℕ}
+  → m ≤ n
+  → n ≤ p
+    -----
+  → m ≤ p
+≤-trans z≤n _ = z≤n 
+≤-trans (s≤s m≤n) (s≤s n≤p) = s≤s (≤-trans m≤n n≤p)
+
+module ≤-Reasoning where
+
+  infix 1 start_
+  infixr 2 _≤⟨⟩_ _≤⟨_⟩_
+  infix 3 _∎≤
+
+  start_ : ∀ {x y : ℕ}
+    → x ≤ y
+      -----
+    → x ≤ y
+  start x≤y = x≤y
+
+  _≤⟨⟩_ : ∀ (x : ℕ) {y : ℕ}
+    → x ≤ y
+      -----
+    → x ≤ y
+  x ≤⟨⟩ x≤y = x≤y 
+
+  _≤⟨_⟩_ : ∀ (x : ℕ) {y z : ℕ}
+    → x ≤ y
+    → y ≤ z
+      -----
+    → x ≤ z
+  x ≤⟨ x≤y ⟩ y≤z = ≤-trans x≤y y≤z
+
+  _∎≤ : ∀ (x : ℕ)
+      -----
+    → x ≤ x
+  zero ∎≤ = z≤n
+  suc x ∎≤ = s≤s (x ∎≤)
+
++-monoˡ-≤ : ∀ (m n p : ℕ)
+  → m ≤ n
+    ---------
+  → m + p ≤ n + p
++-monoˡ-≤ m n p m≤n = {!!}
+
 data even : ℕ → Set
 data odd  : ℕ → Set
 
@@ -144,8 +197,6 @@ data odd where
       -----------
     → odd (suc n)
 
-{-# BUILTIN EQUALITY _≡_ #-}
-
 even-comm : ∀ (m n : ℕ)
   → even (m + n)
     ------------
@@ -160,4 +211,40 @@ even-comm′ : ∀ (m n : ℕ)
   → even (m + n)
     ------------
   → even (n + m)
-even-comm′ m n ev with 
+even-comm′ m n ev with     m + n  | +-comm m n
+...                    | .(n + m) | refl       = ev 
+
+even-comm″ : ∀ (m n : ℕ)
+  → even (m + n)
+    ------------
+  → even (n + m)
+even-comm″ m n = subst even (+-comm m n)
+
+_≐_ : ∀ {A : Set} (x y : A) → Set₁
+_≐_ {A} x y = ∀ (P : A → Set) → P x → P y
+
+refl-≐ : ∀ {A : Set} {x : A}
+  → x ≐ x
+refl-≐ P Px = Px
+
+trans-≐ : ∀ {A : Set} {x y z : A}
+  → x ≐ y
+  → y ≐ z
+    -----
+  → x ≐ z
+trans-≐ x≐y y≐z P Px = y≐z P (x≐y P Px)
+
+sym-≐ : ∀ {A : Set} {x y : A}
+  → x ≐ y
+    -----
+  → y ≐ x
+sym-≐ {A} {x} {y} x≐y P = x≐y (λ z → P z → P x) (λ x → x)
+{-
+  where
+    Q : A → Set
+    Q z = P z → P x
+    Qx : Q x
+    Qx = refl-≐ P
+    Qy : Q y
+    Qy = x≐y Q Qx
+-}
