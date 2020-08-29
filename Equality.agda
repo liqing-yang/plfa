@@ -248,3 +248,38 @@ sym-≐ {A} {x} {y} x≐y P = x≐y (λ z → P z → P x) (λ x → x)
     Qy : Q y
     Qy = x≐y Q Qx
 -}
+
+≡-implies-≐ : ∀ {A : Set} {x y : A}
+  → x ≡ y
+    -----
+  → x ≐ y
+≡-implies-≐ x≡y P = subst P x≡y
+
+≐-implies-≡ : ∀ {A : Set} {x y : A}
+  → x ≐ y
+    -----
+  → x ≡ y
+≐-implies-≡ {A} {x} {y} x≐y = x≐y (_≡_ x) refl
+{-
+  where
+    Q : A → Set
+    Q z = x ≡ z
+    Qx : Q x
+    Qx = refl
+    Qy : Q y
+    Qy = x≐y Q Qx
+-}
+
+open import Level using (Level; _⊔_) renaming (zero to lzero; suc to lsuc)
+
+data _≡′_ {ℓ : Level} {A : Set ℓ} (x : A) : A → Set ℓ where
+  refl′ : x ≡′ x
+ 
+sym′ : ∀ {ℓ : Level} {A : Set ℓ} {x y : A}
+  → x ≡′ y
+    ------
+  → y ≡′ x
+sym′ refl′ = refl′
+
+_≐′_ : ∀ {ℓ : Level} {A : Set ℓ} (x y : A) → Set (lsuc ℓ)
+_≐′_ {ℓ} {A} x y = ∀ (P : A → Set ℓ) → P x → P y
