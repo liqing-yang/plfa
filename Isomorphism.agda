@@ -1,4 +1,4 @@
-module Isomorphism where
+module plfa.Isomorphism where
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong-app)
@@ -233,6 +233,16 @@ open _⇔_
   record
     { to = λ z → z
     ; from = λ z → z
+    }
+
+⇔-sym : ∀ {A B : Set}
+  → A ⇔ B
+    -----
+  → B ⇔ A
+⇔-sym A⇔B =
+  record
+    { to = from A⇔B
+    ; from = to A⇔B
     }
 
 ⇔-trans : {A B C : Set}
