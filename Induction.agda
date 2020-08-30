@@ -409,15 +409,15 @@ _ =
     ⟨⟩
   ∎
 
-law3 : ∀ (n : ℕ) → from (to n) ≡ n
-law3 zero = refl
-law3 (suc n) =
+fromto : ∀ (n : ℕ) → from (to n) ≡ n
+fromto zero = refl
+fromto (suc n) =
   begin
     from (to (suc n))
   ≡⟨⟩
     from (inc (to n))
   ≡⟨ law1 (to n) ⟩
     suc (from (to n))
-  ≡⟨ cong suc (law3 n) ⟩
+  ≡⟨ cong suc (fromto n) ⟩
     suc n
   ∎
