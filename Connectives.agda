@@ -214,3 +214,70 @@ uniq-⊥ h ()
 
 η-→ : ∀ {A B : Set} (f : A → B) → (λ (x : A) → f x) ≡ f
 η-→ f = refl
+
+currying : ∀ {A B C : Set} → (A → B → C) ≃ (A × B → C)
+currying =
+  record
+    { to = λ{ f → λ{ ⟨ x , y ⟩ → f x y } }
+    ; from = λ{ g → λ{ x → λ y → g ⟨ x , y ⟩ } } 
+    ; from∘to = λ{ f → refl }
+    ; to∘from = λ{ g → extensionality λ{ ⟨ x , y ⟩ → refl} }
+    }
+
+→-distrib-⊎ : ∀ {A B C : Set} → (A ⊎ B → C) ≃ ((A → C) × (B → C))
+→-distrib-⊎ =
+  record
+    { to = λ{ f → ⟨ (λ{x → f (inj₁ x) })  , (λ{y → f (inj₂ y)}) ⟩ } 
+    ; from = λ{ ⟨ g , h ⟩ → λ{ (inj₁ x) → g x ; (inj₂ y) → h y } }
+    ; from∘to = λ{ f → extensionality λ{ (inj₁ x) → refl ; (inj₂ y) → refl} }
+    ; to∘from = λ{ ⟨ g , h ⟩ → refl }
+    }
+
+→-distrib-× : ∀ {A B C : Set} → (A → B × C) ≃ (A → B) × (A → C)
+→-distrib-× =
+  record
+    { to = λ{ f → ⟨ (λ{ x → proj₁ (f x) }) , (λ{ y → proj₂ (f y) }) ⟩ }
+    ; from = λ{ ⟨ g , h ⟩ → λ{ x → ⟨ g x , h x ⟩ } }
+    ; from∘to = λ{ f → extensionality λ{ x → η-× (f x) }  }
+    ; to∘from = λ{ ⟨ g , h ⟩ → refl }
+    }
+
+×-distrib-⊎ : ∀ {A B C : Set} → (A ⊎ B) × C ≃ (A × C) ⊎ (B × C)
+×-distrib-⊎ =
+  record
+    { to = λ{ ⟨ inj₁ x , z ⟩ → inj₁ ⟨ x , z ⟩
+            ; ⟨ inj₂ y , z ⟩ → inj₂ ⟨ y , z ⟩
+            }
+    ; from = λ{ (inj₁ ⟨ x , z ⟩) → ⟨ inj₁ x , z ⟩
+              ; (inj₂ ⟨ x , z ⟩) → ⟨ inj₂ x , z ⟩
+              }
+    ; from∘to = λ{ ⟨ inj₁ x , z ⟩ → refl
+                 ; ⟨ inj₂ y , z ⟩ → refl
+                 }
+    ; to∘from = λ{ (inj₁ ⟨ x , z ⟩) → refl
+                 ; (inj₂ ⟨ y , z ⟩) → refl
+                 }
+    }
+
+⊎-distrib-× : ∀ {A B C : Set} → (A × B) ⊎ C ≲ (A ⊎ C) × (B ⊎ C)
+⊎-distrib-× =
+  record
+    { to = λ{ (inj₁ ⟨ x , y ⟩) → ⟨ inj₁ x , inj₁ y ⟩
+            ; (inj₂ z) → ⟨ inj₂ z , inj₂ z ⟩
+            }
+    ; from = λ{ ⟨ inj₁ x , inj₁ y ⟩ → inj₁ ⟨ x , y ⟩
+              ; ⟨ inj₁ x , inj₂ z ⟩ → inj₂ z
+              ; ⟨ inj₂ z , _ ⟩ → inj₂ z
+              }
+    ; from∘to = λ{ (inj₁ ⟨ x , y ⟩) → refl
+                 ; (inj₂ z) → refl
+                 }
+    }
+
+⊎-weak-× : ∀ {A B C : Set} → (A ⊎ B) × C → A ⊎ (B × C)
+⊎-weak-× ⟨ inj₁ x , z ⟩ = inj₁ x
+⊎-weak-× ⟨ inj₂ y , z ⟩ = inj₂ ⟨ y , z ⟩
+
+⊎×-implies-×⊎ : ∀ {A B C D : Set} → (A × B) ⊎ (C × D) → (A ⊎ C) × (B ⊎ D)
+⊎×-implies-×⊎ (inj₁ ⟨ x , y ⟩) = ⟨ inj₁ x , inj₁ y ⟩
+⊎×-implies-×⊎ (inj₂ ⟨ z , h ⟩) = ⟨ inj₂ z , inj₂ h ⟩
