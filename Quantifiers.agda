@@ -33,6 +33,9 @@ data Tri : Set where
   bb : Tri
   cc : Tri
 
+postulate
+  ∀-extensionality : ∀ {A : Set} {B : A → Set}
+
 ∀-× : {B : Tri → Set} → (∀ (x : Tri) → B x) ≃ B aa × B bb × B cc
 ∀-× =
   record
